@@ -7,6 +7,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema.runnable import RunnablePassthrough
 from langchain.prompts import PromptTemplate
 from langchain.vectorstores.utils import filter_complex_metadata
+from nltk.corpus import stopwords
 
 import pandas as pd
 
@@ -21,7 +22,7 @@ class ChatDataFrame:
         self.text_splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=64)
         self.prompt = PromptTemplate.from_template(
             """
-            [INST]<<SYS>> You are an assistant that will be given a trademark name to search. Use retrieved trademarks to tell if that trademark name exists already or if there are similar trademarks in the database that might cause a conflict. Trademarks can have inactive statuses, like DEAD or CANCELLED.  We want to know the status of the requested trademark, so if the trademark name exists, please specify that it exists as well as its status. We also want to know if similar trademarks exist to see if there is a conflict in using that trademark name.  For the most similar trademarks, give a one or two sentence explanation as to why or why not it might be a conflict to the requested trademark.  If a similar trademark does not appear in the given context, say that there does not appear to be a conflict.<</SYS>> 
+            [INST]<<SYS>> You are an assistant that will be given a trademark name to search. Use retrieved trademarks to tell if that trademark name already exists or if there are similar trademarks in the database that might cause a conflict. Trademarks can have inactive statuses, like DEAD or CANCELLED.  We want to know the status of the requested trademark, so if the trademark name exists, please specify that it exists as well as its status. We also want to know if similar trademarks exist to see if there is a conflict in using that trademark name.  For the top 3 most similar trademarks, give a one or two sentence explanation as to why or why not it might be a conflict to the requested trademark.  List the top 5 active or live trademark names that are most similar to the requested trademark name.  If a similar trademark does not appear in the given context, say that there does not appear to be a conflict.<</SYS>> 
             Trademark Search: {question} 
             Retrieved Trademarks: {context} 
             Answer: [/INST]
@@ -56,9 +57,11 @@ class ChatDataFrame:
 
 
     def filter_trademarks(self, df, term):
-        # Split the term into individual words
-        words = term.split()
+        # List of stop words to exclude
+        stop_words = set().union(stopwords.words('english'),stopwords.words('spanish'), stopwords.words('portuguese'))
         
+        # Split the term into individual words excluding the stopwords
+        words = [word for word in term.split() if word.lower() not in stop_words]
         # Escape special characters in each word for regex matching
         escaped_words = [pd.Series([word]).str.replace(r'([-[\]{}()*+?.,\\^$|#\s])', r'\\\1', regex=True).iloc[0] for word in words]
         
