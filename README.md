@@ -8,7 +8,7 @@
 <a id="header1"></a>
 ## Introduction
 
-Our goal for this project was to create a ML-based search bot that would identify if a trademark name was available to be registered or not.  The bot would perform the following functions:
+Our goal for this project was to create a RAG-based search bot that would identify if a trademark name was available to be registered or not.  The bot would perform the following functions:
 - Prompt the user for a trademark name
 - Search the database of all available trademarks for the name, or any similar trademark names for potential conflicts
 - Provide a summary of findings and an opinion on whether the prompted trademark can be registered, or if there is a conflict.
@@ -27,9 +27,12 @@ We concatenated these tables together, and then removed duplicate rows as well a
 
 <a id="header3"></a>
 ## Trademark Bot
-We used langchain to build out our class framework, using a 'llama3' pre-trained model for our foundation, and then applying a sentence transformer from HuggingFace for the embeddings.  We then created functions to prompt the user for a trademark name, and then filter the data down to any trademark that contained all or part of the trademark (excluding stopwords).  Once the data was filtered, the bot would ingest the data and then return its results.
+We used langchain to build out our class framework, using a 'llama3' pre-trained LLM model for our foundation, and then applying a sentence transformer (all-MiniLM-L6) from HuggingFace for the embeddings.  We then created functions to prompt the user for a trademark name, and then filter the data down to any trademark that contained all or part of the trademark (excluding stopwords).  Once the data was filtered, the bot would ingest the data and then return its results.
 
 After updating and tweaking the System Prompt, the resulting Trademark Bot was able to correctly identify whether a trademark appeared in the filtered dataframe, and it would also provide a summary of the closest potential conflicts from other trademarks.
+
+Finally, we built out a Streamlit app to offer up a better user interface with which to interact with the bot and generate results (accessed via the [main.py](main.py) file).
+![Streamlit App](/Images/TrademarkBotStreamlit.png)
 
 <a id="header4"></a>
 ## Next Steps
